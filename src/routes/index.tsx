@@ -99,11 +99,13 @@ function Index() {
         </div>
       </section>
       <section id="deals" aria-labelledby="deals-title" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-12 sm:px-8 sm:py-16">
-        <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-2 text-xs font-bold uppercase text-primary">The deal edit</p><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Good finds. Better prices.</h2></div><p className="text-xs text-muted-foreground">A little less spending. A little more living.</p></div>
-        <div className="mt-7 flex border-b" role="group" aria-label="Filter deals by store">
+        <div><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Find Your Deal</h2><p className="mt-2 text-xs text-muted-foreground">Follow these simple steps to find a deal and shop at the store.</p></div>
+        <ol className="mt-6 flex flex-col gap-3">
+          {["Pick a store and a deal", "Tap View Deal to open the store's page", "Buy at the store's sale price"].map((text, i) => <li key={text} className="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-[var(--shadow-card)]"><span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary font-display text-xl font-extrabold text-primary-foreground">{i + 1}</span><span className="text-base font-bold">{text}</span></li>)}
+        </ol>
+        <div className="mb-6 mt-7 flex border-b" role="group" aria-label="Filter deals by store">
           {stores.map((store) => <Button key={store} variant="ghost" aria-pressed={activeStore === store} onClick={() => setActiveStore(store)} className={`h-12 flex-1 rounded-none border-b-[3px] px-4 text-base font-bold sm:flex-none sm:px-9 ${activeStore === store ? "border-primary bg-accent text-primary" : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"}`}>{store}</Button>)}
         </div>
-        <div className="mb-6 mt-4 flex flex-wrap items-center justify-between gap-2"><p aria-live="polite" className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">{visibleDeals.length} {activeStore} finds</span>{activeCategory ? ` · ${activeCategory}` : ""}</p><span className="text-[11px] text-muted-foreground">Sample deals · Confirm prices at the store</span></div>
         {activeCategory && <Button variant="secondary" size="sm" onClick={() => setActiveCategory(null)} className="mb-5 rounded-full">{activeCategory}<X aria-hidden="true" /><span className="sr-only">Clear category filter</span></Button>}
         {visibleDeals.length > 0 ? <div className="grid grid-cols-1 gap-5 min-[540px]:grid-cols-2 lg:grid-cols-4">{visibleDeals.map((deal) => <DealCard key={deal.title} deal={deal} />)}</div> : <div className="flex min-h-72 flex-col items-center justify-center border-y text-center"><Search className="mb-4 size-7 text-muted-foreground" /><h3 className="text-lg font-bold">No {activeCategory?.toLowerCase()} finds at {activeStore} yet.</h3><p className="mt-2 text-sm text-muted-foreground">Try another store or browse all {activeStore} finds.</p><Button variant="outline" onClick={() => setActiveCategory(null)} className="mt-5">Clear category<ArrowRight /></Button></div>}
       </section>
