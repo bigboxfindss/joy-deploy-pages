@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Clock3, Gift, Home, Mail, Search, ShoppingBag, Sparkles, SprayCan, Timer, ToyBrick, Tv, UtensilsCrossed, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Gift, Mail, Search, ShoppingBag, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { deals, formatPrice, percentOff, stores, storeLinks, type Category, type Deal, type Store } from "@/lib/deals";
-import heroImage from "@/assets/big-box-hero.jpg";
+import { stores, storeLinks, type Store } from "@/lib/deals";
+import walmartLogo from "@/assets/walmart-logo.jpg.asset.json";
+import costcoLogo from "@/assets/costco-logo.jpg.asset.json";
+import targetLogo from "@/assets/target-logo.jpg.asset.json";
 
 const SITE_URL = "https://joy-deploy-pages.lovable.app";
 const description = "Discover Walmart, Costco and Target discounts with Big Box Finds. Browse home, kitchen, electronics, beauty, toys and cleaning deals, with prices and last-checked dates.";
@@ -26,15 +28,15 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const categories: { name: Category; icon: typeof Home }[] = [
-  { name: "Home", icon: Home }, { name: "Kitchen", icon: UtensilsCrossed },
-  { name: "Electronics", icon: Tv }, { name: "Beauty", icon: Sparkles },
-  { name: "Toys", icon: ToyBrick }, { name: "Cleaning", icon: SprayCan },
-];
+const storeLogos: Record<Store, string> = {
+  Walmart: walmartLogo.url,
+  Costco: costcoLogo.url,
+  Target: targetLogo.url,
+};
 const steps = [
-  { icon: Search, title: "Pick a deal", text: "Find a little something for your home, your routine, or your next big upgrade." },
-  { icon: ArrowUpRight, title: "Tap View Deal", text: "Follow the link to the store to see the latest price and availability." },
-  { icon: ShoppingBag, title: "Buy from the store at the sale price", text: "Check the final price, then complete your purchase directly with the retailer." },
+  { icon: Gift, title: "Claim an offer", text: "Pick Walmart, Costco or Target and tap Claim Now to open the offer in a new tab." },
+  { icon: Search, title: "Register", text: "Enter your email and basic info to complete the registration steps." },
+  { icon: ShoppingBag, title: "Enjoy your voucher", text: "Complete the sponsored deals, then enjoy the exclusive offer at the store." },
 ];
 const faqs = [
   { q: "Are the deals real?", a: "This preview contains sample products, prices, dates and placeholder links—not verified live offers. Published offers should link to the retailer, where you can confirm the current price before buying." },
@@ -49,21 +51,6 @@ function Brand({ inverse = false }: { inverse?: boolean }) {
     <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground"><Box className="size-5" aria-hidden="true" /></span>
     <span className="font-display text-[18px] font-extrabold">Big Box Finds<span className="text-primary">.</span></span>
   </a>;
-}
-function DealCard({ deal }: { deal: Deal }) {
-  return <article className="card-hover group flex min-w-0 flex-col overflow-hidden rounded-xl border bg-card">
-    <div className="relative aspect-[5/4] overflow-hidden bg-muted">
-      <img src={deal.image} alt={`${deal.title} — sample product image`} width={816} height={816} loading="lazy" className="size-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-105" />
-      <span className="absolute left-3 top-3 rounded-md bg-primary px-2.5 py-1.5 text-xs font-bold text-primary-foreground">{percentOff(deal)}% OFF</span>
-    </div>
-    <div className="flex flex-1 flex-col p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-2 text-[11px] font-semibold"><span className="text-primary">{deal.store}</span><span className="text-muted-foreground">{deal.category}</span></div>
-      <h3 className="mt-2 min-h-11 text-[15px] font-bold leading-snug">{deal.title}</h3>
-      <div className="mt-3 flex flex-wrap items-baseline gap-x-2"><span className="font-display text-[28px] font-extrabold tabular-nums">{formatPrice(deal.newPrice)}</span><del className="text-sm text-muted-foreground">{formatPrice(deal.oldPrice)}</del></div>
-      <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Clock3 className="size-3" aria-hidden="true" />Last checked {deal.lastChecked}</p>
-      <Button asChild variant="outline" className="mt-5 h-11 w-full rounded-lg border-foreground/15 font-bold hover:border-primary hover:bg-primary hover:text-primary-foreground"><a href={deal.link} target="_blank" rel="sponsored noopener" aria-label={`View Deal: ${deal.title} (opens in a new tab)`}>View Deal<ArrowUpRight aria-hidden="true" /></a></Button>
-    </div>
-  </article>;
 }
 
 function useMidnightCountdown() {
@@ -90,25 +77,19 @@ function StoreCard({ store }: { store: Store }) {
   const remaining = useMidnightCountdown();
   return <article className="card-hover relative flex flex-col overflow-hidden rounded-xl border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
     <span className="absolute right-0 top-0 rounded-bl-lg bg-primary px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-primary-foreground">Claim Now</span>
-    <div className="grid size-16 place-items-center rounded-xl border-2 border-dashed border-border bg-muted font-display text-2xl font-extrabold text-muted-foreground" title={`Space reserved for the official ${store} logo`}>{store[0]}</div>
+    <div className="flex h-16 items-center"><img src={storeLogos[store]} alt={`${store} logo`} width={160} height={64} loading="lazy" className="max-h-16 w-auto object-contain" /></div>
     <h3 className="mt-4 font-display text-2xl font-extrabold">{store}</h3>
     <p className="mt-1 text-sm text-muted-foreground">Today's best deals at {store}.</p>
     <p className="mt-3 flex items-center gap-2 text-sm font-bold text-primary"><Timer className="size-4 shrink-0" aria-hidden="true" />Offer ends in <span className="tabular-nums">{remaining ?? "--:--:--"}</span></p>
     <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-muted-foreground"><Gift className="size-4 shrink-0 text-primary" aria-hidden="true" />Gift card & coupon offers available</p>
-    <Button asChild className="mt-5 h-12 w-full rounded-lg font-bold"><a href={storeLinks[store]} target="_blank" rel="sponsored noopener" aria-label={`Shop ${store} Deals (opens in a new tab)`}>Shop {store} Deals<ArrowUpRight aria-hidden="true" /></a></Button>
+    <Button asChild className="mt-5 h-12 w-full rounded-lg font-bold"><a href={storeLinks[store]} target="_blank" rel="sponsored noopener" aria-label={`Claim Now: ${store} offer (opens in a new tab)`}>Claim Now<ArrowUpRight aria-hidden="true" /></a></Button>
   </article>;
 }
 
 function Index() {
-  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
-  const visibleDeals = activeCategory ? deals.filter((deal) => deal.category === activeCategory) : deals;
-  function selectCategory(category: Category) {
-    setActiveCategory(activeCategory === category ? null : category);
-    document.getElementById("deals")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-  }
   return <div id="top" className="min-h-screen bg-background text-foreground">
     <a href="#deals" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground">Skip to deals</a>
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
@@ -119,18 +100,6 @@ function Index() {
       </div>
     </header>
     <main>
-      <section aria-labelledby="hero-title" className="relative isolate overflow-hidden border-b bg-hero">
-        <img src={heroImage} alt="Air fryer, cookware, headphones and towels beside a red shopping basket" width={1536} height={864} fetchPriority="high" className="absolute inset-0 -z-10 h-full w-full object-cover object-[68%_center] opacity-25 md:object-center md:opacity-100" />
-        <div className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16 lg:py-20">
-          <div className="max-w-[580px] md:max-w-[520px]">
-            <p className="mb-4 flex items-center gap-2 text-xs font-bold uppercase text-primary"><span className="h-px w-7 bg-primary" />Big stores. Better finds.</p>
-            <h1 id="hero-title" className="font-display text-[38px] font-extrabold leading-[1.12] sm:text-[52px] lg:text-[58px]">Save on Walmart,<br className="hidden sm:block" /> Costco and<br className="hidden sm:block" /> <span className="text-primary">Target deals</span></h1>
-            <p className="mt-5 max-w-[390px] text-base leading-relaxed text-muted-foreground sm:text-lg">Real discounts from the biggest US stores, updated regularly.</p>
-            <Button asChild className="mt-7 h-13 rounded-lg px-7 text-base font-bold"><a href="#deals">See Deals<ArrowRight aria-hidden="true" /></a></Button>
-            <p className="mt-5 flex items-center gap-2 text-xs font-medium text-muted-foreground"><ShoppingBag className="size-4" aria-hidden="true" />Shop directly with the stores you know.</p>
-          </div>
-        </div>
-      </section>
       <section id="deals" aria-labelledby="deals-title" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-12 sm:px-8 sm:py-16">
         <div><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Complete Your Registration</h2><p className="mt-2 text-xs text-muted-foreground">Follow these simple steps to complete your registration and access your exclusive offer.</p></div>
         <ol className="mt-6 flex flex-col gap-3">
@@ -142,13 +111,6 @@ function Index() {
         </div>
         <div className="mt-5 grid gap-5 md:grid-cols-3">
           {stores.map((store) => <StoreCard key={store} store={store} />)}
-        </div>
-        {activeCategory && <Button variant="secondary" size="sm" onClick={() => setActiveCategory(null)} className="mb-5 rounded-full">{activeCategory}<X aria-hidden="true" /><span className="sr-only">Clear category filter</span></Button>}
-        {visibleDeals.length > 0 ? <div className="grid grid-cols-1 gap-5 min-[540px]:grid-cols-2 lg:grid-cols-4">{visibleDeals.map((deal) => <DealCard key={deal.title} deal={deal} />)}</div> : <div className="flex min-h-72 flex-col items-center justify-center border-y text-center"><Search className="mb-4 size-7 text-muted-foreground" /><h3 className="text-lg font-bold">No {activeCategory?.toLowerCase()} finds yet.</h3><p className="mt-2 text-sm text-muted-foreground">Try another category or browse all the deals.</p><Button variant="outline" onClick={() => setActiveCategory(null)} className="mt-5">Clear category<ArrowRight /></Button></div>}
-      </section>
-      <section aria-labelledby="categories-title" className="border-y bg-secondary">
-        <div className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-12"><div className="flex flex-wrap items-center justify-between gap-2"><h2 id="categories-title" className="text-2xl font-extrabold">Find your kind of deal.</h2><p className="text-sm text-muted-foreground">Everyday essentials. Unexpected favorites.</p></div>
-          <div className="mt-7 grid grid-cols-3 gap-3 sm:grid-cols-6">{categories.map(({ name, icon: Icon }) => <Button key={name} variant="ghost" aria-pressed={activeCategory === name} onClick={() => selectCategory(name)} className={`h-auto flex-col gap-3 rounded-lg py-4 font-semibold ${activeCategory === name ? "bg-accent text-primary ring-1 ring-primary" : "text-foreground hover:bg-background"}`}><span className="grid size-12 place-items-center rounded-full border bg-background"><Icon className="size-5" aria-hidden="true" /></span>{name}</Button>)}</div>
         </div>
       </section>
       <section id="how-it-works" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-14 sm:px-8 sm:py-20">
