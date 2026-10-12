@@ -86,8 +86,8 @@ function ClaimNotification() {
     const id = setInterval(() => setTick((value) => value + 1), 5000);
     return () => clearInterval(id);
   }, []);
-  const name = claimNames[tick % claimNames.length] ?? claimNames[0];
-  const { store, amount } = claimOffers[tick % claimOffers.length] ?? claimOffers[0];
+  const name = claimNames[tick % claimNames.length] ?? claimNames[0]!;
+  const { store, amount } = claimOffers[tick % claimOffers.length] ?? claimOffers[0]!;
   return <div key={tick} role="status" aria-live="polite" className="claim-pop fixed bottom-4 left-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-2xl bg-card p-3.5 pr-5 shadow-[var(--shadow-card)]">
     <span className="grid size-10 shrink-0 place-items-center rounded-full bg-success text-success-foreground"><Check className="size-5" aria-hidden="true" /></span>
     <p className="text-sm leading-snug">
