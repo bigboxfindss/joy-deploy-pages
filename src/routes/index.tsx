@@ -132,9 +132,9 @@ function Index() {
         </div>
       </section>
       <section id="deals" aria-labelledby="deals-title" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-12 sm:px-8 sm:py-16">
-        <div><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Find Your Deal</h2><p className="mt-2 text-xs text-muted-foreground">Follow these simple steps to find a deal and shop at the store.</p></div>
+        <div><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Complete Your Registration</h2><p className="mt-2 text-xs text-muted-foreground">Follow these simple steps to complete your registration and access your exclusive offer.</p></div>
         <ol className="mt-6 flex flex-col gap-3">
-          {["Pick a store and a deal", "Tap View Deal to open the store's page", "Buy at the store's sale price"].map((text, i) => <li key={text} className="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-[var(--shadow-card)]"><span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary font-display text-xl font-extrabold text-primary-foreground">{i + 1}</span><span className="text-base font-bold">{text}</span></li>)}
+          {['Click "Claim Now"', "Enter your email and basic info", "Complete 4–5 sponsored deals", "Enjoy Your $750 Voucher!"].map((text, i) => <li key={text} className="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-[var(--shadow-card)]"><span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary font-display text-xl font-extrabold text-primary-foreground">{i + 1}</span><span className="text-base font-bold">{text}</span></li>)}
         </ol>
         <div className="mt-7 flex items-start gap-3 rounded-xl border border-primary/30 bg-accent px-4 py-3">
           <Gift className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
