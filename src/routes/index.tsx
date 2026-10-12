@@ -1,421 +1,128 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import {
-  ArrowRight,
-  BadgePercent,
-  Bell,
-  CheckCircle2,
-  ChevronDown,
-  Clock3,
-  Home,
-  Mail,
-  Search,
-  ShoppingBag,
-  Sparkles,
-  SprayCan,
-  Tag,
-  ToyBrick,
-  Tv,
-  UtensilsCrossed,
-} from "lucide-react";
-import { deals, formatPrice, percentOff, type Store } from "@/lib/deals";
+import { useState } from "react";
+import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Clock3, Home, Mail, Search, ShoppingBag, Sparkles, SprayCan, ToyBrick, Tv, UtensilsCrossed, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { defaultStore, filterDeals, formatPrice, percentOff, stores, type Category, type Deal } from "@/lib/deals";
+import heroImage from "@/assets/big-box-hero.jpg";
 
 const SITE_URL = "https://joy-deploy-pages.lovable.app";
-
+const description = "Discover Walmart, Costco and Target discounts with Big Box Finds. Browse home, kitchen, electronics, beauty, toys and cleaning deals, with prices and last-checked dates.";
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "Big Box Finds — Today's Best Walmart, Costco & Target Deals" },
-      {
-        name: "description",
-        content:
-          "Big Box Finds tracks the best daily discounts at Walmart, Costco and Target. Verified prices, bold savings, and hand-picked deals updated every day.",
-      },
-      {
-        property: "og:title",
-        content: "Big Box Finds — Today's Best Big Box Deals",
-      },
-      {
-        property: "og:description",
-        content:
-          "The best daily discounts at Walmart, Costco and Target, verified and updated every day.",
-      },
+      { title: "Big Box Finds | Walmart, Costco & Target Deals" },
+      { name: "description", content: description },
+      { property: "og:title", content: "Big Box Finds | Walmart, Costco & Target Deals" },
+      { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { property: "og:url", content: SITE_URL },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Big Box Finds | Walmart, Costco & Target Deals" },
+      { name: "twitter:description", content: description },
     ],
     links: [{ rel: "canonical", href: SITE_URL }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Big Box Finds",
-          url: SITE_URL,
-          description:
-            "Daily curated discounts from Walmart, Costco and Target.",
-        }),
-      },
-    ],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: "Big Box Finds", url: SITE_URL, description }) }],
   }),
 });
 
-const storeFilters: Array<"All" | Store> = ["All", "Walmart", "Costco", "Target"];
-
-const categories = [
-  { name: "Home", icon: Home },
-  { name: "Kitchen", icon: UtensilsCrossed },
-  { name: "Electronics", icon: Tv },
-  { name: "Beauty", icon: Sparkles },
-  { name: "Toys", icon: ToyBrick },
-  { name: "Cleaning", icon: SprayCan },
+const categories: { name: Category; icon: typeof Home }[] = [
+  { name: "Home", icon: Home }, { name: "Kitchen", icon: UtensilsCrossed },
+  { name: "Electronics", icon: Tv }, { name: "Beauty", icon: Sparkles },
+  { name: "Toys", icon: ToyBrick }, { name: "Cleaning", icon: SprayCan },
 ];
-
 const steps = [
-  {
-    icon: Search,
-    title: "We hunt the deals",
-    text: "Every morning we scan Walmart, Costco and Target for real price drops worth your time.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "We verify the price",
-    text: "Each deal is checked against the store's live price and stamped with a last-checked date.",
-  },
-  {
-    icon: Tag,
-    title: "You save money",
-    text: "Tap View Deal to go straight to the store and lock in the price before it changes.",
-  },
+  { icon: Search, title: "Pick a deal", text: "Find a little something for your home, your routine, or your next big upgrade." },
+  { icon: ArrowUpRight, title: "Tap View Deal", text: "Follow the link to the store to see the latest price and availability." },
+  { icon: ShoppingBag, title: "Buy from the store at the sale price", text: "Check the final price, then complete your purchase directly with the retailer." },
 ];
-
 const faqs = [
-  {
-    q: "Are these prices guaranteed?",
-    a: "No. Prices and availability at Walmart, Costco and Target can change at any time. We show the price we last verified along with the date we checked it.",
-  },
-  {
-    q: "How often are deals updated?",
-    a: "We review and refresh the deal list every day, and each card shows its own last-checked date so you know how fresh it is.",
-  },
-  {
-    q: "Does it cost me anything to use Big Box Finds?",
-    a: "No, the site is free. We may earn a commission when you buy through our links, at no extra cost to you.",
-  },
-  {
-    q: "Are you affiliated with Walmart, Costco or Target?",
-    a: "No. Big Box Finds is an independent deal-curation site and is not owned by, endorsed by, or affiliated with any of these retailers.",
-  },
+  { q: "Are the deals real?", a: "This preview contains sample products, prices, dates and placeholder links—not verified live offers. Published offers should link to the retailer, where you can confirm the current price before buying." },
+  { q: "How do you earn money?", a: "We may earn a commission when you buy through affiliate links on this site. Big Box Finds is independent and is not owned by or affiliated with Walmart, Costco or Target." },
+  { q: "How often is it updated?", a: "The deal list is intended to be refreshed regularly. Each card includes a last-checked date. The current dates are sample data; there is no automated price checking." },
+  { q: "Are prices guaranteed?", a: "No. Prices and availability can change without notice and may vary by location or membership. The price shown at the store at checkout is the final price." },
 ];
+const disclosure = "We may earn a commission when you buy through links on this site. Prices and availability can change. We are not owned by or affiliated with Walmart, Costco or Target.";
 
+function Brand({ inverse = false }: { inverse?: boolean }) {
+  return <a href="#top" aria-label="Big Box Finds home" className={`inline-flex shrink-0 items-center gap-2.5 ${inverse ? "text-inverse-foreground" : "text-foreground"}`}>
+    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground"><Box className="size-5" aria-hidden="true" /></span>
+    <span className="font-display text-[18px] font-extrabold">Big Box Finds<span className="text-primary">.</span></span>
+  </a>;
+}
+function DealCard({ deal }: { deal: Deal }) {
+  return <article className="card-hover group flex min-w-0 flex-col overflow-hidden rounded-xl border bg-card">
+    <div className="relative aspect-[5/4] overflow-hidden bg-muted">
+      <img src={deal.image} alt={`${deal.title} — sample product image`} width={816} height={816} loading="lazy" className="size-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-105" />
+      <span className="absolute left-3 top-3 rounded-md bg-primary px-2.5 py-1.5 text-xs font-bold text-primary-foreground">{percentOff(deal)}% OFF</span>
+    </div>
+    <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-2 text-[11px] font-semibold"><span className="text-primary">{deal.store}</span><span className="text-muted-foreground">{deal.category}</span></div>
+      <h3 className="mt-2 min-h-11 text-[15px] font-bold leading-snug">{deal.title}</h3>
+      <div className="mt-3 flex flex-wrap items-baseline gap-x-2"><span className="font-display text-[28px] font-extrabold tabular-nums">{formatPrice(deal.newPrice)}</span><del className="text-sm text-muted-foreground">{formatPrice(deal.oldPrice)}</del></div>
+      <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Clock3 className="size-3" aria-hidden="true" />Last checked {deal.lastChecked}</p>
+      <Button asChild variant="outline" className="mt-5 h-11 w-full rounded-lg border-foreground/15 font-bold hover:border-primary hover:bg-primary hover:text-primary-foreground"><a href={deal.link} target="_blank" rel="sponsored noopener" aria-label={`View Deal: ${deal.title} (opens in a new tab)`}>View Deal<ArrowUpRight aria-hidden="true" /></a></Button>
+    </div>
+  </article>;
+}
 function Index() {
-  const [activeStore, setActiveStore] = useState<(typeof storeFilters)[number]>("All");
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [activeStore, setActiveStore] = useState(defaultStore);
+  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
-
-  const visibleDeals = useMemo(
-    () =>
-      activeStore === "All"
-        ? deals
-        : deals.filter((deal) => deal.store === activeStore),
-    [activeStore],
-  );
-
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <a href="#top" className="flex items-center gap-2">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-deal text-deal-foreground">
-              <BadgePercent className="h-5 w-5" />
-            </span>
-            <span className="font-display text-lg font-extrabold tracking-tight">
-              Big Box Finds
-            </span>
-          </a>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground sm:flex">
-            <a href="#deals" className="transition-colors hover:text-foreground">
-              Deals
-            </a>
-            <a href="#how-it-works" className="transition-colors hover:text-foreground">
-              How it works
-            </a>
-            <a href="#faq" className="transition-colors hover:text-foreground">
-              FAQ
-            </a>
-          </nav>
-          <a
-            href="#deals"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            See Deals
-          </a>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section id="top" className="border-b">
-        <div className="mx-auto max-w-6xl px-4 pb-14 pt-16 text-center sm:px-6 sm:pb-20 sm:pt-24">
-          <p className="mx-auto inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <Clock3 className="h-3.5 w-3.5 text-deal" />
-            Updated daily · Walmart · Costco · Target
-          </p>
-          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-            Today's Best <span className="text-deal">Big Box</span> Deals
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-            Hand-picked discounts from America's biggest stores, verified every
-            morning so you never overpay again.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href="#deals"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-deal px-8 py-3.5 text-base font-bold text-deal-foreground shadow-lg transition-transform hover:scale-[1.03] sm:w-auto"
-            >
-              See Deals
-              <ArrowRight className="h-4 w-4" />
-            </a>
-            <a
-              href="#newsletter"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border bg-card px-8 py-3.5 text-base font-semibold transition-colors hover:bg-accent sm:w-auto"
-            >
-              <Bell className="h-4 w-4" />
-              Get deal alerts
-            </a>
+  const visibleDeals = filterDeals(activeStore, activeCategory);
+  function selectCategory(category: Category) {
+    setActiveCategory(activeCategory === category ? null : category);
+    document.getElementById("deals")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  }
+  return <div id="top" className="min-h-screen bg-background text-foreground">
+    <a href="#deals" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground">Skip to deals</a>
+    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between gap-3 px-5 sm:px-8">
+        <Brand />
+        <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex"><a href="#deals" className="hover:text-primary">The deals</a><a href="#how-it-works" className="hover:text-primary">How it works</a><a href="#faq" className="hover:text-primary">FAQ</a></nav>
+        <Button asChild className="h-10 rounded-lg px-4 font-bold sm:px-5"><a href="#deals">See Deals<ArrowUpRight className="hidden sm:block" aria-hidden="true" /></a></Button>
+      </div>
+    </header>
+    <main>
+      <section aria-labelledby="hero-title" className="relative isolate overflow-hidden border-b bg-hero">
+        <img src={heroImage} alt="Air fryer, cookware, headphones and towels beside a red shopping basket" width={1536} height={864} fetchPriority="high" className="absolute inset-0 -z-10 h-full w-full object-cover object-[68%_center] opacity-25 md:object-center md:opacity-100" />
+        <div className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16 lg:py-20">
+          <div className="max-w-[580px] md:max-w-[520px]">
+            <p className="mb-4 flex items-center gap-2 text-xs font-bold uppercase text-primary"><span className="h-px w-7 bg-primary" />Big stores. Better finds.</p>
+            <h1 id="hero-title" className="font-display text-[38px] font-extrabold leading-[1.12] sm:text-[52px] lg:text-[58px]">Save on Walmart,<br className="hidden sm:block" /> Costco and<br className="hidden sm:block" /> <span className="text-primary">Target deals</span></h1>
+            <p className="mt-5 max-w-[390px] text-base leading-relaxed text-muted-foreground sm:text-lg">Real discounts from the biggest US stores, updated regularly.</p>
+            <Button asChild className="mt-7 h-13 rounded-lg px-7 text-base font-bold"><a href="#deals">See Deals<ArrowRight aria-hidden="true" /></a></Button>
+            <p className="mt-5 flex items-center gap-2 text-xs font-medium text-muted-foreground"><ShoppingBag className="size-4" aria-hidden="true" />Shop directly with the stores you know.</p>
           </div>
         </div>
       </section>
-
-      {/* Store filter tabs + deals grid */}
-      <section id="deals" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-12 sm:px-6 sm:py-16">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:justify-between">
-          <div className="min-w-0">
-            <h2 className="truncate text-2xl font-extrabold tracking-tight sm:text-3xl">
-              Today's top picks
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {visibleDeals.length} deals verified by our team
-            </p>
-          </div>
+      <section id="deals" aria-labelledby="deals-title" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-12 sm:px-8 sm:py-16">
+        <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-2 text-xs font-bold uppercase text-primary">The deal edit</p><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Good finds. Better prices.</h2></div><p className="text-xs text-muted-foreground">A little less spending. A little more living.</p></div>
+        <div className="mt-7 flex border-b" role="group" aria-label="Filter deals by store">
+          {stores.map((store) => <Button key={store} variant="ghost" aria-pressed={activeStore === store} onClick={() => setActiveStore(store)} className={`h-12 flex-1 rounded-none border-b-[3px] px-4 text-base font-bold sm:flex-none sm:px-9 ${activeStore === store ? "border-primary bg-accent text-primary" : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"}`}>{store}</Button>)}
         </div>
-
-        <div className="mt-6 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Filter deals by store">
-          {storeFilters.map((store) => (
-            <button
-              key={store}
-              role="tab"
-              aria-selected={activeStore === store}
-              onClick={() => setActiveStore(store)}
-              className={`shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
-                activeStore === store
-                  ? "bg-primary text-primary-foreground"
-                  : "border bg-card text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              {store}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visibleDeals.map((deal) => (
-            <article
-              key={deal.title}
-              className="card-hover group flex flex-col overflow-hidden rounded-2xl border bg-card"
-            >
-              <div className="relative aspect-square overflow-hidden bg-muted">
-                <img
-                  src={deal.image}
-                  alt={deal.title}
-                  loading="lazy"
-                  width={816}
-                  height={816}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <span className="absolute left-3 top-3 rounded-full bg-savings px-2.5 py-1 text-xs font-bold text-savings-foreground">
-                  {percentOff(deal)}% OFF
-                </span>
-                <span className="absolute right-3 top-3 rounded-full bg-card/95 px-2.5 py-1 text-xs font-semibold text-foreground shadow-sm">
-                  {deal.store}
-                </span>
-              </div>
-              <div className="flex flex-1 flex-col p-4">
-                <h3 className="text-sm font-bold leading-snug">{deal.title}</h3>
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="price-now text-2xl">{formatPrice(deal.newPrice)}</span>
-                  <span className="text-sm text-muted-foreground line-through">
-                    {formatPrice(deal.oldPrice)}
-                  </span>
-                </div>
-                <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock3 className="h-3 w-3 shrink-0" />
-                  Last checked {deal.lastChecked}
-                </p>
-                <a
-                  href={deal.link}
-                  target="_blank"
-                  rel="noopener noreferrer sponsored"
-                  className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-deal hover:text-deal-foreground"
-                >
-                  View Deal
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
-            </article>
-          ))}
+        <div className="mb-6 mt-4 flex flex-wrap items-center justify-between gap-2"><p aria-live="polite" className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">{visibleDeals.length} {activeStore} finds</span>{activeCategory ? ` · ${activeCategory}` : ""}</p><span className="text-[11px] text-muted-foreground">Sample deals · Confirm prices at the store</span></div>
+        {activeCategory && <Button variant="secondary" size="sm" onClick={() => setActiveCategory(null)} className="mb-5 rounded-full">{activeCategory}<X aria-hidden="true" /><span className="sr-only">Clear category filter</span></Button>}
+        {visibleDeals.length > 0 ? <div className="grid grid-cols-1 gap-5 min-[540px]:grid-cols-2 lg:grid-cols-4">{visibleDeals.map((deal) => <DealCard key={deal.title} deal={deal} />)}</div> : <div className="flex min-h-72 flex-col items-center justify-center border-y text-center"><Search className="mb-4 size-7 text-muted-foreground" /><h3 className="text-lg font-bold">No {activeCategory?.toLowerCase()} finds at {activeStore} yet.</h3><p className="mt-2 text-sm text-muted-foreground">Try another store or browse all {activeStore} finds.</p><Button variant="outline" onClick={() => setActiveCategory(null)} className="mt-5">Clear category<ArrowRight /></Button></div>}
+      </section>
+      <section aria-labelledby="categories-title" className="border-y bg-secondary">
+        <div className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-12"><div className="flex flex-wrap items-center justify-between gap-2"><h2 id="categories-title" className="text-2xl font-extrabold">Find your kind of deal.</h2><p className="text-sm text-muted-foreground">Everyday essentials. Unexpected favorites.</p></div>
+          <div className="mt-7 grid grid-cols-3 gap-3 sm:grid-cols-6">{categories.map(({ name, icon: Icon }) => <Button key={name} variant="ghost" aria-pressed={activeCategory === name} onClick={() => selectCategory(name)} className={`h-auto flex-col gap-3 rounded-lg py-4 font-semibold ${activeCategory === name ? "bg-accent text-primary ring-1 ring-primary" : "text-foreground hover:bg-background"}`}><span className="grid size-12 place-items-center rounded-full border bg-background"><Icon className="size-5" aria-hidden="true" /></span>{name}</Button>)}</div>
         </div>
       </section>
-
-      {/* Categories */}
-      <section className="border-y bg-secondary/50">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Shop by category
-          </h2>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {categories.map(({ name, icon: Icon }) => (
-              <a
-                key={name}
-                href="#deals"
-                className="card-hover flex flex-col items-center gap-3 rounded-2xl border bg-card px-4 py-6 text-center"
-              >
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span className="text-sm font-bold">{name}</span>
-              </a>
-            ))}
-          </div>
+      <section id="how-it-works" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-14 sm:px-8 sm:py-20">
+        <p className="text-center text-xs font-bold uppercase text-primary">Less scrolling. More saving.</p><h2 className="mt-3 text-center text-3xl font-extrabold sm:text-4xl">How it works</h2>
+        <div className="mt-10 grid gap-9 sm:grid-cols-3 sm:gap-8">{steps.map(({ icon: Icon, title, text }, i) => <div key={title} className="relative border-t pt-6"><div className="flex items-center justify-between"><span className="font-display text-4xl font-extrabold text-border">0{i + 1}</span><Icon className="size-6 text-primary" aria-hidden="true" /></div><h3 className="mt-5 text-lg font-bold">{title}</h3><p className="mt-3 text-sm leading-relaxed text-muted-foreground">{text}</p></div>)}</div>
+      </section>
+      <section id="newsletter" className="scroll-mt-24 bg-inverse text-inverse-foreground">
+        <div className="mx-auto grid max-w-[1200px] items-center gap-8 px-5 py-12 sm:px-8 sm:py-16 md:grid-cols-2 md:gap-16"><div><p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase text-inverse-muted"><Mail className="size-4" />The good finds, in your inbox</p><h2 className="text-3xl font-extrabold sm:text-4xl">Get weekly deals<span className="text-primary">.</span></h2><p className="mt-3 text-sm leading-relaxed text-inverse-muted">Your favorite stores. One weekly roundup.</p></div>
+          {subscribed ? <div role="status" className="border-l-2 border-primary pl-5"><Check className="mb-3 size-6 text-primary" /><h3 className="text-lg font-bold">Thank you for your interest!</h3><p className="mt-2 text-sm text-inverse-muted">This is a signup preview. Your address hasn’t been saved, and no emails will be sent.</p></div> : <form onSubmit={(event) => { event.preventDefault(); if (email.trim()) setSubscribed(true); }}><label htmlFor="newsletter-email" className="mb-2 block text-sm font-medium">Email address</label><div className="flex flex-col gap-3 sm:flex-row"><input id="newsletter-email" name="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="h-12 min-w-0 flex-1 rounded-lg border border-input bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" /><Button type="submit" className="h-12 rounded-lg px-5 font-bold">Sign me up<ArrowRight /></Button></div><p className="mt-3 text-xs text-inverse-muted">Preview signup only. No emails are stored or sent.</p></form>}
         </div>
       </section>
-
-      {/* How it works */}
-      <section id="how-it-works" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 sm:px-6 sm:py-20">
-        <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">
-          How it works
-        </h2>
-        <p className="mx-auto mt-3 max-w-md text-center text-sm text-muted-foreground">
-          Three simple steps between you and a better price.
-        </p>
-        <div className="mt-10 grid gap-5 sm:grid-cols-3">
-          {steps.map(({ icon: Icon, title, text }, i) => (
-            <div key={title} className="card-hover rounded-2xl border bg-card p-6">
-              <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-deal/10 text-deal">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span className="font-display text-3xl font-extrabold text-muted-foreground/40">
-                  {i + 1}
-                </span>
-              </div>
-              <h3 className="mt-4 text-base font-bold">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Newsletter */}
-      <section id="newsletter" className="border-y bg-primary text-primary-foreground">
-        <div className="mx-auto max-w-3xl scroll-mt-20 px-4 py-14 text-center sm:px-6 sm:py-20">
-          <Mail className="mx-auto h-8 w-8" />
-          <h2 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Never miss a price drop
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-primary-foreground/80">
-            One short email each morning with the best new deals. No spam, unsubscribe anytime.
-          </p>
-          {subscribed ? (
-            <p className="mx-auto mt-8 inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-6 py-3 text-sm font-semibold">
-              <CheckCircle2 className="h-4 w-4" />
-              You're on the list! Watch your inbox tomorrow morning.
-            </p>
-          ) : (
-            <form
-              className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (email.trim()) setSubscribed(true);
-              }}
-            >
-              <label htmlFor="newsletter-email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="newsletter-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full flex-1 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-5 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary-foreground/40"
-              />
-              <button
-                type="submit"
-                className="rounded-full bg-deal px-6 py-3 text-sm font-bold text-deal-foreground transition-transform hover:scale-[1.03]"
-              >
-                Sign up free
-              </button>
-            </form>
-          )}
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-14 sm:px-6 sm:py-20">
-        <h2 className="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">
-          Frequently asked questions
-        </h2>
-        <div className="mt-8 space-y-3">
-          {faqs.map((faq, i) => (
-            <div key={faq.q} className="overflow-hidden rounded-2xl border bg-card">
-              <button
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-bold"
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                aria-expanded={openFaq === i}
-              >
-                {faq.q}
-                <ChevronDown
-                  className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
-                    openFaq === i ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {openFaq === i && (
-                <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
-                  {faq.a}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t bg-secondary/50">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <span className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-deal text-deal-foreground">
-                <ShoppingBag className="h-4 w-4" />
-              </span>
-              <span className="font-display text-base font-extrabold">Big Box Finds</span>
-            </span>
-            <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
-              We may earn a commission when you buy through links on this site.
-              Prices and availability can change. We are not owned by or
-              affiliated with Walmart, Costco or Target.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Big Box Finds. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+      <section id="faq" className="mx-auto grid max-w-[1200px] scroll-mt-24 gap-8 px-5 py-14 sm:px-8 sm:py-20 md:grid-cols-[1fr_1.6fr] md:gap-20"><div><p className="text-xs font-bold uppercase text-primary">A little clarity</p><h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">Good questions.<br />Straight answers.</h2></div><div className="border-t">{faqs.map((faq, i) => <div key={faq.q} className="border-b"><h3><Button variant="ghost" aria-expanded={openFaq === i} aria-controls={`faq-answer-${i}`} id={`faq-question-${i}`} onClick={() => setOpenFaq(openFaq === i ? null : i)} className="h-auto min-h-16 w-full justify-between gap-4 whitespace-normal rounded-none px-0 py-5 text-left text-[15px] font-bold hover:bg-transparent hover:text-primary">{faq.q}<ChevronDown className={`shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} aria-hidden="true" /></Button></h3><div id={`faq-answer-${i}`} role="region" aria-labelledby={`faq-question-${i}`} hidden={openFaq !== i}><p className="pb-5 pr-6 text-sm leading-relaxed text-muted-foreground">{faq.a}</p></div></div>)}</div></section>
+    </main>
+    <footer className="border-t bg-secondary"><div className="mx-auto max-w-[1200px] px-5 py-9 sm:px-8"><div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-center"><Brand /><nav aria-label="Footer navigation" className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-muted-foreground"><a href="#deals" className="hover:text-primary">Deals</a><a href="#how-it-works" className="hover:text-primary">How it works</a><a href="#newsletter" className="hover:text-primary">Weekly deals</a><a href="#faq" className="hover:text-primary">FAQ</a></nav></div><div className="mt-7 grid gap-5 border-t pt-6 md:grid-cols-[1fr_auto]"><p className="max-w-[720px] text-xs leading-relaxed text-muted-foreground">{disclosure}</p><p className="text-xs text-muted-foreground">© 2026 Big Box Finds</p></div></div></footer>
+  </div>;
 }

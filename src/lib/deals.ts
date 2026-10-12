@@ -11,20 +11,8 @@ import cookware from "@/assets/deals/cookware.jpg";
 import speaker from "@/assets/deals/speaker.jpg";
 import cleaningSet from "@/assets/deals/cleaning-set.jpg";
 
-export type Store = "Walmart" | "Costco" | "Target";
-
-export interface Deal {
-  title: string;
-  store: Store;
-  category: string;
-  oldPrice: number;
-  newPrice: number;
-  image: string;
-  /** Replace with your affiliate URL */
-  link: string;
-  lastChecked: string;
-}
-
+// Sample prices, images, dates and links — replace these with your real affiliate deals.
+// This is the single editable list for every store and category.
 export const deals: Deal[] = [
   {
     title: "6-Quart Digital Air Fryer",
@@ -148,8 +136,30 @@ export const deals: Deal[] = [
   },
 ];
 
+export type Category = "Home" | "Kitchen" | "Electronics" | "Beauty" | "Toys" | "Cleaning";
+
+export type Store = "Walmart" | "Costco" | "Target";
+
+export interface Deal {
+  title: string;
+  store: Store;
+  category: Category;
+  oldPrice: number;
+  newPrice: number;
+  image: string;
+  /** Replace with your affiliate URL */
+  link: string;
+  lastChecked: string;
+}
+
+export const stores: Store[] = ["Walmart", "Costco", "Target"];
+export const defaultStore: Store = "Walmart";
+
+export const filterDeals = (store: Store, category: Category | null = null) =>
+  deals.filter((deal) => deal.store === store && (category === null || deal.category === category));
+
 export const percentOff = (deal: Deal) =>
-  Math.round(((deal.oldPrice - deal.newPrice) / deal.oldPrice) * 100);
+  deal.oldPrice > 0 ? Math.max(0, Math.min(100, Math.round(((deal.oldPrice - deal.newPrice) / deal.oldPrice) * 100))) : 0;
 
 export const formatPrice = (value: number) =>
   value.toLocaleString("en-US", { style: "currency", currency: "USD" });
