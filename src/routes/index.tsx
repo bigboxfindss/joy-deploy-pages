@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Clock3, Gift, Home, Mail, Search, ShoppingBag, Sparkles, SprayCan, Timer, ToyBrick, Tv, UtensilsCrossed, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Gift, Mail, Search, ShoppingBag, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { deals, formatPrice, percentOff, stores, storeLinks, type Category, type Deal, type Store } from "@/lib/deals";
-import heroImage from "@/assets/big-box-hero.jpg";
+import { stores, storeLinks, type Store } from "@/lib/deals";
+import walmartLogo from "@/assets/walmart-logo.jpg.asset.json";
+import costcoLogo from "@/assets/costco-logo.jpg.asset.json";
+import targetLogo from "@/assets/target-logo.jpg.asset.json";
 
 const SITE_URL = "https://joy-deploy-pages.lovable.app";
 const description = "Discover Walmart, Costco and Target discounts with Big Box Finds. Browse home, kitchen, electronics, beauty, toys and cleaning deals, with prices and last-checked dates.";
@@ -26,11 +28,11 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const categories: { name: Category; icon: typeof Home }[] = [
-  { name: "Home", icon: Home }, { name: "Kitchen", icon: UtensilsCrossed },
-  { name: "Electronics", icon: Tv }, { name: "Beauty", icon: Sparkles },
-  { name: "Toys", icon: ToyBrick }, { name: "Cleaning", icon: SprayCan },
-];
+const storeLogos: Record<Store, string> = {
+  Walmart: walmartLogo.url,
+  Costco: costcoLogo.url,
+  Target: targetLogo.url,
+};
 const steps = [
   { icon: Search, title: "Pick a deal", text: "Find a little something for your home, your routine, or your next big upgrade." },
   { icon: ArrowUpRight, title: "Tap View Deal", text: "Follow the link to the store to see the latest price and availability." },
@@ -49,21 +51,6 @@ function Brand({ inverse = false }: { inverse?: boolean }) {
     <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground"><Box className="size-5" aria-hidden="true" /></span>
     <span className="font-display text-[18px] font-extrabold">Big Box Finds<span className="text-primary">.</span></span>
   </a>;
-}
-function DealCard({ deal }: { deal: Deal }) {
-  return <article className="card-hover group flex min-w-0 flex-col overflow-hidden rounded-xl border bg-card">
-    <div className="relative aspect-[5/4] overflow-hidden bg-muted">
-      <img src={deal.image} alt={`${deal.title} — sample product image`} width={816} height={816} loading="lazy" className="size-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-105" />
-      <span className="absolute left-3 top-3 rounded-md bg-primary px-2.5 py-1.5 text-xs font-bold text-primary-foreground">{percentOff(deal)}% OFF</span>
-    </div>
-    <div className="flex flex-1 flex-col p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-2 text-[11px] font-semibold"><span className="text-primary">{deal.store}</span><span className="text-muted-foreground">{deal.category}</span></div>
-      <h3 className="mt-2 min-h-11 text-[15px] font-bold leading-snug">{deal.title}</h3>
-      <div className="mt-3 flex flex-wrap items-baseline gap-x-2"><span className="font-display text-[28px] font-extrabold tabular-nums">{formatPrice(deal.newPrice)}</span><del className="text-sm text-muted-foreground">{formatPrice(deal.oldPrice)}</del></div>
-      <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Clock3 className="size-3" aria-hidden="true" />Last checked {deal.lastChecked}</p>
-      <Button asChild variant="outline" className="mt-5 h-11 w-full rounded-lg border-foreground/15 font-bold hover:border-primary hover:bg-primary hover:text-primary-foreground"><a href={deal.link} target="_blank" rel="sponsored noopener" aria-label={`View Deal: ${deal.title} (opens in a new tab)`}>View Deal<ArrowUpRight aria-hidden="true" /></a></Button>
-    </div>
-  </article>;
 }
 
 function useMidnightCountdown() {
@@ -90,25 +77,19 @@ function StoreCard({ store }: { store: Store }) {
   const remaining = useMidnightCountdown();
   return <article className="card-hover relative flex flex-col overflow-hidden rounded-xl border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
     <span className="absolute right-0 top-0 rounded-bl-lg bg-primary px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-primary-foreground">Claim Now</span>
-    <div className="grid size-16 place-items-center rounded-xl border-2 border-dashed border-border bg-muted font-display text-2xl font-extrabold text-muted-foreground" title={`Space reserved for the official ${store} logo`}>{store[0]}</div>
+    <div className="flex h-16 items-center"><img src={storeLogos[store]} alt={`${store} logo`} width={160} height={64} loading="lazy" className="max-h-16 w-auto object-contain" /></div>
     <h3 className="mt-4 font-display text-2xl font-extrabold">{store}</h3>
     <p className="mt-1 text-sm text-muted-foreground">Today's best deals at {store}.</p>
     <p className="mt-3 flex items-center gap-2 text-sm font-bold text-primary"><Timer className="size-4 shrink-0" aria-hidden="true" />Offer ends in <span className="tabular-nums">{remaining ?? "--:--:--"}</span></p>
     <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-muted-foreground"><Gift className="size-4 shrink-0 text-primary" aria-hidden="true" />Gift card & coupon offers available</p>
-    <Button asChild className="mt-5 h-12 w-full rounded-lg font-bold"><a href={storeLinks[store]} target="_blank" rel="sponsored noopener" aria-label={`Shop ${store} Deals (opens in a new tab)`}>Shop {store} Deals<ArrowUpRight aria-hidden="true" /></a></Button>
+    <Button asChild className="mt-5 h-12 w-full rounded-lg font-bold"><a href={storeLinks[store]} target="_blank" rel="sponsored noopener" aria-label={`Claim Now: ${store} offer (opens in a new tab)`}>Claim Now<ArrowUpRight aria-hidden="true" /></a></Button>
   </article>;
 }
 
 function Index() {
-  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
-  const visibleDeals = activeCategory ? deals.filter((deal) => deal.category === activeCategory) : deals;
-  function selectCategory(category: Category) {
-    setActiveCategory(activeCategory === category ? null : category);
-    document.getElementById("deals")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-  }
   return <div id="top" className="min-h-screen bg-background text-foreground">
     <a href="#deals" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground">Skip to deals</a>
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
