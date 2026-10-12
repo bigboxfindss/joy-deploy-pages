@@ -73,6 +73,30 @@ function useMidnightCountdown() {
   return remaining;
 }
 
+const claimNames = ["Jessica J. from FL", "Michael R. from TX", "Ashley K. from OH", "David M. from GA", "Samantha P. from NC", "Chris T. from AZ", "Emily W. from PA", "Marcus B. from IL"];
+const claimOffers = [
+  { store: "Walmart", amount: "$750" },
+  { store: "Costco", amount: "$500" },
+  { store: "Target", amount: "$500" },
+] as const;
+
+function ClaimNotification() {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((value) => value + 1), 5000);
+    return () => clearInterval(id);
+  }, []);
+  const name = claimNames[tick % claimNames.length];
+  const { store, amount } = claimOffers[tick % claimOffers.length];
+  return <div key={tick} role="status" aria-live="polite" className="claim-pop fixed bottom-4 left-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-2xl bg-card p-3.5 pr-5 shadow-[var(--shadow-card)]">
+    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-success text-success-foreground"><Check className="size-5" aria-hidden="true" /></span>
+    <p className="text-sm leading-snug">
+      <span className="block font-display text-base font-extrabold">{name}</span>
+      <span className="text-muted-foreground">Just claimed <span className="font-extrabold text-deal">{amount}</span> {store} reward!</span> <span aria-hidden="true">🎉</span>
+    </p>
+  </div>;
+}
+
 function StoreCard({ store }: { store: Store }) {
   const remaining = useMidnightCountdown();
   return <article className="card-hover relative flex flex-col overflow-hidden rounded-xl border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
@@ -125,5 +149,6 @@ function Index() {
       <section id="faq" className="mx-auto grid max-w-[1200px] scroll-mt-24 gap-8 px-5 py-14 sm:px-8 sm:py-20 md:grid-cols-[1fr_1.6fr] md:gap-20"><div><p className="text-xs font-bold uppercase text-primary">A little clarity</p><h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">Good questions.<br />Straight answers.</h2></div><div className="border-t">{faqs.map((faq, i) => <div key={faq.q} className="border-b"><h3><Button variant="ghost" aria-expanded={openFaq === i} aria-controls={`faq-answer-${i}`} id={`faq-question-${i}`} onClick={() => setOpenFaq(openFaq === i ? null : i)} className="h-auto min-h-16 w-full justify-between gap-4 whitespace-normal rounded-none px-0 py-5 text-left text-[15px] font-bold hover:bg-transparent hover:text-primary">{faq.q}<ChevronDown className={`shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} aria-hidden="true" /></Button></h3><div id={`faq-answer-${i}`} role="region" aria-labelledby={`faq-question-${i}`} hidden={openFaq !== i}><p className="pb-5 pr-6 text-sm leading-relaxed text-muted-foreground">{faq.a}</p></div></div>)}</div></section>
     </main>
     <footer className="border-t bg-secondary"><div className="mx-auto max-w-[1200px] px-5 py-9 sm:px-8"><div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-center"><Brand /><nav aria-label="Footer navigation" className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-muted-foreground"><a href="#deals" className="hover:text-primary">Deals</a><a href="#how-it-works" className="hover:text-primary">How it works</a><a href="#newsletter" className="hover:text-primary">Weekly deals</a><a href="#faq" className="hover:text-primary">FAQ</a></nav></div><div className="mt-7 grid gap-5 border-t pt-6 md:grid-cols-[1fr_auto]"><p className="max-w-[720px] text-xs leading-relaxed text-muted-foreground">{disclosure}</p><p className="text-xs text-muted-foreground">© 2026 Big Box Finds</p></div></div></footer>
+    <ClaimNotification />
   </div>;
 }
