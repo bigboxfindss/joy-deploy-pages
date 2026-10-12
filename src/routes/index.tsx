@@ -100,18 +100,6 @@ function Index() {
       </div>
     </header>
     <main>
-      <section aria-labelledby="hero-title" className="relative isolate overflow-hidden border-b bg-hero">
-        <img src={heroImage} alt="Air fryer, cookware, headphones and towels beside a red shopping basket" width={1536} height={864} fetchPriority="high" className="absolute inset-0 -z-10 h-full w-full object-cover object-[68%_center] opacity-25 md:object-center md:opacity-100" />
-        <div className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16 lg:py-20">
-          <div className="max-w-[580px] md:max-w-[520px]">
-            <p className="mb-4 flex items-center gap-2 text-xs font-bold uppercase text-primary"><span className="h-px w-7 bg-primary" />Big stores. Better finds.</p>
-            <h1 id="hero-title" className="font-display text-[38px] font-extrabold leading-[1.12] sm:text-[52px] lg:text-[58px]">Save on Walmart,<br className="hidden sm:block" /> Costco and<br className="hidden sm:block" /> <span className="text-primary">Target deals</span></h1>
-            <p className="mt-5 max-w-[390px] text-base leading-relaxed text-muted-foreground sm:text-lg">Real discounts from the biggest US stores, updated regularly.</p>
-            <Button asChild className="mt-7 h-13 rounded-lg px-7 text-base font-bold"><a href="#deals">See Deals<ArrowRight aria-hidden="true" /></a></Button>
-            <p className="mt-5 flex items-center gap-2 text-xs font-medium text-muted-foreground"><ShoppingBag className="size-4" aria-hidden="true" />Shop directly with the stores you know.</p>
-          </div>
-        </div>
-      </section>
       <section id="deals" aria-labelledby="deals-title" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-12 sm:px-8 sm:py-16">
         <div><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Complete Your Registration</h2><p className="mt-2 text-xs text-muted-foreground">Follow these simple steps to complete your registration and access your exclusive offer.</p></div>
         <ol className="mt-6 flex flex-col gap-3">
