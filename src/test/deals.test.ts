@@ -22,7 +22,9 @@ describe("Big Box Finds deal rules", () => {
     expect(filterDeals("Costco", "Beauty")).toEqual([]);
   });
   it("calculates percentage off automatically from the two prices", () => {
-    expect(percentOff({ ...deals[0], oldPrice: 100, newPrice: 75 })).toBe(25);
-    expect(percentOff({ ...deals[0], oldPrice: 129, newPrice: 79 })).toBe(39);
+    const sample = deals[0];
+    if (!sample) throw new Error("Expected a sample deal");
+    expect(percentOff({ ...sample, oldPrice: 100, newPrice: 75 })).toBe(25);
+    expect(percentOff({ ...sample, oldPrice: 129, newPrice: 79 })).toBe(39);
   });
 });
