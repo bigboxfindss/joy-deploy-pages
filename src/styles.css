@@ -1,6 +1,6 @@
 @import "tailwindcss" source(none);
-@source "../src";
 @import "tw-animate-css";
+@source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -35,37 +35,44 @@
   --color-deal-foreground: var(--deal-foreground);
   --color-savings: var(--savings);
   --color-savings-foreground: var(--savings-foreground);
-  --font-display: "Archivo", "Inter", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --color-hero: var(--hero);
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
+  --color-inverse-muted: var(--inverse-muted);
+  --font-display: "Archivo", "DM Sans", system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.875rem;
-  /* Warm paper background, ink text, bold red deal accent */
-  --background: oklch(0.975 0.008 90);
-  --foreground: oklch(0.22 0.02 40);
+  --radius: 0.75rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.20 0.005 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.02 40);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.02 40);
-  --primary: oklch(0.25 0.03 45);
-  --primary-foreground: oklch(0.98 0.005 90);
-  --secondary: oklch(0.94 0.015 85);
-  --secondary-foreground: oklch(0.3 0.03 45);
-  --muted: oklch(0.94 0.015 85);
-  --muted-foreground: oklch(0.5 0.02 50);
-  --accent: oklch(0.93 0.03 60);
-  --accent-foreground: oklch(0.3 0.03 45);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.98 0.005 90);
-  --border: oklch(0.9 0.015 75);
-  --input: oklch(0.9 0.015 75);
-  --ring: oklch(0.55 0.2 30);
-  /* Deal red for prices/CTAs, green for savings badges */
-  --deal: oklch(0.55 0.22 28);
-  --deal-foreground: oklch(0.99 0.005 90);
-  --savings: oklch(0.5 0.13 155);
-  --savings-foreground: oklch(0.99 0.005 90);
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.53 0.215 27);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.002 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.955 0.002 260);
+  --muted-foreground: oklch(0.47 0.009 260);
+  --accent: oklch(0.96 0.015 25);
+  --accent-foreground: var(--primary);
+  --destructive: var(--primary);
+  --destructive-foreground: var(--primary-foreground);
+  --border: oklch(0.91 0.003 260);
+  --input: var(--border);
+  --ring: var(--primary);
+  --deal: var(--primary);
+  --deal-foreground: var(--primary-foreground);
+  --savings: var(--accent);
+  --savings-foreground: var(--primary);
+  --hero: oklch(0.87 0.002 260);
+  --inverse: oklch(0.19 0.005 260);
+  --inverse-foreground: oklch(1 0 0);
+  --inverse-muted: oklch(0.75 0.005 260);
+  --shadow-card: 0 12px 28px -12px oklch(0.2 0 0 / 18%);
 }
 
 @layer base {
@@ -91,7 +98,7 @@
 @utility price-now {
   font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   color: var(--color-deal);
 }
 
@@ -102,6 +109,16 @@
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 40px -16px oklch(0.3 0.03 45 / 25%);
+    box-shadow: var(--shadow-card);
   }
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+body { margin: 0; }
+* { letter-spacing: 0; }
+::selection { background: var(--accent); color: var(--primary); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .card-hover:hover { transform: none; }
 }
