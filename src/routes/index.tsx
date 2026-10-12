@@ -101,7 +101,6 @@ function StoreCard({ store }: { store: Store }) {
 
 function Index() {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
-  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
