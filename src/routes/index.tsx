@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Clock3, Home, Mail, Search, ShoppingBag, Sparkles, SprayCan, ToyBrick, Tv, UtensilsCrossed, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Clock3, Gift, Home, Mail, Search, ShoppingBag, Sparkles, SprayCan, Timer, ToyBrick, Tv, UtensilsCrossed, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { defaultStore, filterDeals, formatPrice, percentOff, stores, type Category, type Deal } from "@/lib/deals";
+import { deals, formatPrice, percentOff, stores, storeLinks, type Category, type Deal, type Store } from "@/lib/deals";
 import heroImage from "@/assets/big-box-hero.jpg";
 
 const SITE_URL = "https://joy-deploy-pages.lovable.app";
@@ -65,13 +65,47 @@ function DealCard({ deal }: { deal: Deal }) {
     </div>
   </article>;
 }
+
+function useMidnightCountdown() {
+  const [remaining, setRemaining] = useState<string | null>(null);
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      const seconds = Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000));
+      const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+      const s = String(seconds % 60).padStart(2, "0");
+      setRemaining(`${h}:${m}:${s}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return remaining;
+}
+
+function StoreCard({ store }: { store: Store }) {
+  const remaining = useMidnightCountdown();
+  return <article className="card-hover relative flex flex-col overflow-hidden rounded-xl border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
+    <span className="absolute right-0 top-0 rounded-bl-lg bg-primary px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-primary-foreground">Claim Now</span>
+    <div className="grid size-16 place-items-center rounded-xl border-2 border-dashed border-border bg-muted font-display text-2xl font-extrabold text-muted-foreground" title={`Space reserved for the official ${store} logo`}>{store[0]}</div>
+    <h3 className="mt-4 font-display text-2xl font-extrabold">{store}</h3>
+    <p className="mt-1 text-sm text-muted-foreground">Today's best deals at {store}.</p>
+    <p className="mt-3 flex items-center gap-2 text-sm font-bold text-primary"><Timer className="size-4 shrink-0" aria-hidden="true" />Offer ends in <span className="tabular-nums">{remaining ?? "--:--:--"}</span></p>
+    <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-muted-foreground"><Gift className="size-4 shrink-0 text-primary" aria-hidden="true" />Gift card & coupon offers available</p>
+    <Button asChild className="mt-5 h-12 w-full rounded-lg font-bold"><a href={storeLinks[store]} target="_blank" rel="sponsored noopener" aria-label={`Shop ${store} Deals (opens in a new tab)`}>Shop {store} Deals<ArrowUpRight aria-hidden="true" /></a></Button>
+  </article>;
+}
+
 function Index() {
-  const [activeStore, setActiveStore] = useState(defaultStore);
+  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
-  const visibleDeals = filterDeals(activeStore, activeCategory);
+  const visibleDeals = activeCategory ? deals.filter((deal) => deal.category === activeCategory) : deals;
   function selectCategory(category: Category) {
     setActiveCategory(activeCategory === category ? null : category);
     document.getElementById("deals")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
@@ -103,11 +137,15 @@ function Index() {
         <ol className="mt-6 flex flex-col gap-3">
           {["Pick a store and a deal", "Tap View Deal to open the store's page", "Buy at the store's sale price"].map((text, i) => <li key={text} className="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-[var(--shadow-card)]"><span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary font-display text-xl font-extrabold text-primary-foreground">{i + 1}</span><span className="text-base font-bold">{text}</span></li>)}
         </ol>
-        <div className="mb-6 mt-7 flex border-b" role="group" aria-label="Filter deals by store">
-          {stores.map((store) => <Button key={store} variant="ghost" aria-pressed={activeStore === store} onClick={() => setActiveStore(store)} className={`h-12 flex-1 rounded-none border-b-[3px] px-4 text-base font-bold sm:flex-none sm:px-9 ${activeStore === store ? "border-primary bg-accent text-primary" : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"}`}>{store}</Button>)}
+        <div className="mt-7 flex items-start gap-3 rounded-xl border border-primary/30 bg-accent px-4 py-3">
+          <Gift className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+          <p className="text-sm font-semibold leading-snug">Limited-time coupon and gift card offers are live at every store — <span className="font-extrabold text-primary">Claim Now</span> before the timer runs out.</p>
+        </div>
+        <div className="mt-5 grid gap-5 md:grid-cols-3">
+          {stores.map((store) => <StoreCard key={store} store={store} />)}
         </div>
         {activeCategory && <Button variant="secondary" size="sm" onClick={() => setActiveCategory(null)} className="mb-5 rounded-full">{activeCategory}<X aria-hidden="true" /><span className="sr-only">Clear category filter</span></Button>}
-        {visibleDeals.length > 0 ? <div className="grid grid-cols-1 gap-5 min-[540px]:grid-cols-2 lg:grid-cols-4">{visibleDeals.map((deal) => <DealCard key={deal.title} deal={deal} />)}</div> : <div className="flex min-h-72 flex-col items-center justify-center border-y text-center"><Search className="mb-4 size-7 text-muted-foreground" /><h3 className="text-lg font-bold">No {activeCategory?.toLowerCase()} finds at {activeStore} yet.</h3><p className="mt-2 text-sm text-muted-foreground">Try another store or browse all {activeStore} finds.</p><Button variant="outline" onClick={() => setActiveCategory(null)} className="mt-5">Clear category<ArrowRight /></Button></div>}
+        {visibleDeals.length > 0 ? <div className="grid grid-cols-1 gap-5 min-[540px]:grid-cols-2 lg:grid-cols-4">{visibleDeals.map((deal) => <DealCard key={deal.title} deal={deal} />)}</div> : <div className="flex min-h-72 flex-col items-center justify-center border-y text-center"><Search className="mb-4 size-7 text-muted-foreground" /><h3 className="text-lg font-bold">No {activeCategory?.toLowerCase()} finds yet.</h3><p className="mt-2 text-sm text-muted-foreground">Try another category or browse all the deals.</p><Button variant="outline" onClick={() => setActiveCategory(null)} className="mt-5">Clear category<ArrowRight /></Button></div>}
       </section>
       <section aria-labelledby="categories-title" className="border-y bg-secondary">
         <div className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-12"><div className="flex flex-wrap items-center justify-between gap-2"><h2 id="categories-title" className="text-2xl font-extrabold">Find your kind of deal.</h2><p className="text-sm text-muted-foreground">Everyday essentials. Unexpected favorites.</p></div>

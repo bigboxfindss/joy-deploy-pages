@@ -155,6 +155,13 @@ export interface Deal {
 export const stores: Store[] = ["Walmart", "Costco", "Target"];
 export const defaultStore: Store = "Walmart";
 
+// Official store affiliate links — used by the store cards and every deal.
+export const storeLinks: Record<Store, string> = {
+  Walmart: "https://linkthem.net/aff_c?offer_id=1913&aff_id=88950",
+  Costco: "https://linkthem.net/aff_c?offer_id=4452&aff_id=88950",
+  Target: "https://linkthem.net/aff_c?offer_id=3844&aff_id=88950",
+};
+
 export const filterDeals = (store: Store, category: Category | null = null) =>
   deals.filter((deal) => deal.store === store && (category === null || deal.category === category));
 
