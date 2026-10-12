@@ -34,9 +34,9 @@ const storeLogos: Record<Store, string> = {
   Target: targetLogo.url,
 };
 const steps = [
-  { icon: Search, title: "Pick a deal", text: "Find a little something for your home, your routine, or your next big upgrade." },
-  { icon: ArrowUpRight, title: "Tap View Deal", text: "Follow the link to the store to see the latest price and availability." },
-  { icon: ShoppingBag, title: "Buy from the store at the sale price", text: "Check the final price, then complete your purchase directly with the retailer." },
+  { icon: Gift, title: "Claim an offer", text: "Pick Walmart, Costco or Target and tap Claim Now to open the offer in a new tab." },
+  { icon: Search, title: "Register", text: "Enter your email and basic info to complete the registration steps." },
+  { icon: ShoppingBag, title: "Enjoy your voucher", text: "Complete the sponsored deals, then enjoy the exclusive offer at the store." },
 ];
 const faqs = [
   { q: "Are the deals real?", a: "This preview contains sample products, prices, dates and placeholder links—not verified live offers. Published offers should link to the retailer, where you can confirm the current price before buying." },
@@ -111,13 +111,6 @@ function Index() {
         </div>
         <div className="mt-5 grid gap-5 md:grid-cols-3">
           {stores.map((store) => <StoreCard key={store} store={store} />)}
-        </div>
-        {activeCategory && <Button variant="secondary" size="sm" onClick={() => setActiveCategory(null)} className="mb-5 rounded-full">{activeCategory}<X aria-hidden="true" /><span className="sr-only">Clear category filter</span></Button>}
-        {visibleDeals.length > 0 ? <div className="grid grid-cols-1 gap-5 min-[540px]:grid-cols-2 lg:grid-cols-4">{visibleDeals.map((deal) => <DealCard key={deal.title} deal={deal} />)}</div> : <div className="flex min-h-72 flex-col items-center justify-center border-y text-center"><Search className="mb-4 size-7 text-muted-foreground" /><h3 className="text-lg font-bold">No {activeCategory?.toLowerCase()} finds yet.</h3><p className="mt-2 text-sm text-muted-foreground">Try another category or browse all the deals.</p><Button variant="outline" onClick={() => setActiveCategory(null)} className="mt-5">Clear category<ArrowRight /></Button></div>}
-      </section>
-      <section aria-labelledby="categories-title" className="border-y bg-secondary">
-        <div className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-12"><div className="flex flex-wrap items-center justify-between gap-2"><h2 id="categories-title" className="text-2xl font-extrabold">Find your kind of deal.</h2><p className="text-sm text-muted-foreground">Everyday essentials. Unexpected favorites.</p></div>
-          <div className="mt-7 grid grid-cols-3 gap-3 sm:grid-cols-6">{categories.map(({ name, icon: Icon }) => <Button key={name} variant="ghost" aria-pressed={activeCategory === name} onClick={() => selectCategory(name)} className={`h-auto flex-col gap-3 rounded-lg py-4 font-semibold ${activeCategory === name ? "bg-accent text-primary ring-1 ring-primary" : "text-foreground hover:bg-background"}`}><span className="grid size-12 place-items-center rounded-full border bg-background"><Icon className="size-5" aria-hidden="true" /></span>{name}</Button>)}</div>
         </div>
       </section>
       <section id="how-it-works" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-14 sm:px-8 sm:py-20">
