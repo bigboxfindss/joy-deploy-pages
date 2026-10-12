@@ -97,6 +97,15 @@ function ClaimNotification() {
   </div>;
 }
 
+function ClaimedBanner() {
+  return <div className="w-full bg-primary">
+    <p className="mx-auto flex max-w-[1200px] items-center justify-center gap-2 px-5 py-3 text-center font-display text-sm font-extrabold uppercase tracking-wide text-primary-foreground sm:text-base">
+      <Flame className="size-5 shrink-0" aria-hidden="true" />
+      <span>3,500+ People Already Claimed</span>
+    </p>
+  </div>;
+}
+
 function StoreCard({ store }: { store: Store }) {
   const remaining = useMidnightCountdown();
   return <article className="card-hover relative flex flex-col overflow-hidden rounded-xl border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
@@ -123,6 +132,7 @@ function Index() {
         <Button asChild className="h-10 rounded-lg px-4 font-bold sm:px-5"><a href="#deals">See Deals<ArrowUpRight className="hidden sm:block" aria-hidden="true" /></a></Button>
       </div>
     </header>
+    <ClaimedBanner />
     <main>
       <section id="deals" aria-labelledby="deals-title" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 py-12 sm:px-8 sm:py-16">
         <div><h2 id="deals-title" className="text-3xl font-extrabold sm:text-4xl">Complete Your Registration</h2><p className="mt-2 text-xs text-muted-foreground">Follow these simple steps to complete your registration and access your exclusive offer.</p></div>
