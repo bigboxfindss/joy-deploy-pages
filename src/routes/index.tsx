@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Gift, Mail, Search, ShoppingBag, Timer } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Flame, Gift, Mail, Search, ShoppingBag, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { stores, storeLinks, type Store } from "@/lib/deals";
 import walmartLogo from "@/assets/walmart-logo.jpg.asset.json";
