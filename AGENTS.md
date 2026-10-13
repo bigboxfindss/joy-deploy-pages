@@ -15,3 +15,5 @@
 - Compose this single-page landing experience in the index route with in-page anchors; store and category selection are intersecting filters with explicit reset for empty results.
 - Signup is a client-only demonstration and must not persist addresses or report delivery until a real mailing integration is added.
 - Define palette and shadows in src/styles.css and reuse the shared Button component for controls to keep presentation consistent.
+- GitHub Pages builds are opt-in via GITHUB_PAGES=true/BASE_PATH in vite.config.ts (SPA shell, no nitro); default build stays SSR for Lovable hosting. Why: Pages is static-only.
+- Ship images as bundled files in src/assets, not lovable-assets pointers. Why: pointer URLs only resolve on Lovable hosting.
