@@ -20,5 +20,5 @@ export default defineConfig({
       ? { spa: { enabled: true, prerender: { outputPath: "/index.html" } } }
       : {}),
   },
-  ...(isGitHubPages ? { vite: { base: basePath } } : {}),
+  ...(isGitHubPages ? { nitro: false as const, vite: { base: basePath } } : {}),
 });
