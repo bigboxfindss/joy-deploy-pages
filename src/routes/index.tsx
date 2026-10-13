@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ArrowUpRight, Box, Check, ChevronDown, Flame, Gift, Mail, Search, ShoppingBag, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { stores, storeLinks, type Store } from "@/lib/deals";
-import walmartLogo from "@/assets/walmart-logo.jpg.asset.json";
-import costcoLogo from "@/assets/costco-logo.jpg.asset.json";
-import targetLogo from "@/assets/target-logo.jpg.asset.json";
+import walmartLogo from "@/assets/walmart-logo.jpg";
+import costcoLogo from "@/assets/costco-logo.jpg";
+import targetLogo from "@/assets/target-logo.jpg";
 
 const SITE_URL = "https://joy-deploy-pages.lovable.app";
 const description = "Discover Walmart, Costco and Target discounts with Big Box Finds. Browse home, kitchen, electronics, beauty, toys and cleaning deals, with prices and last-checked dates.";
@@ -29,9 +29,9 @@ export const Route = createFileRoute("/")({
 });
 
 const storeLogos: Record<Store, string> = {
-  Walmart: walmartLogo.url,
-  Costco: costcoLogo.url,
-  Target: targetLogo.url,
+  Walmart: walmartLogo,
+  Costco: costcoLogo,
+  Target: targetLogo,
 };
 const steps = [
   { icon: Gift, title: "Claim an offer", text: "Pick Walmart, Costco or Target and tap Claim Now to open the offer in a new tab." },
